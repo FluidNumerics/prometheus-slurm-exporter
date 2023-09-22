@@ -18,6 +18,11 @@ overwhelming slurmctld. The final addition we've added is tracing support. If en
 profiling and optimization consideration.
 
 ### Getting Started
+Simply run with Docker using
+```bash
+$ docker run -d abhinavdhulipala/prometheus-slurm-exporter -slurm.cli-fallback
+```
+
 Golang 20 is required. From there, follow the `justfile` or run `just prod` to start a dev server. Here is a brief overview of exporter options
 
 ```bash
