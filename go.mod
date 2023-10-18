@@ -1,4 +1,4 @@
-module github.com/rivosinc/prometheus-slurm-exporter
+module github.com/fluidnumerics/prometheus-slurm-exporter
 
 go 1.20
 
