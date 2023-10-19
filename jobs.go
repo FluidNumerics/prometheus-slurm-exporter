@@ -86,11 +86,11 @@ func totalAllocMem(job *JobMetric) float64 {
 	var allocMem float64
 
 	if job.MemPerNode.IsSet {
-		allocMem = job.MemPerNode.Number*job.NodeCount.Number
+		allocMem = float64(job.MemPerNode.Number*job.NodeCount.Number)
 	}
 
 	if job.MemPerCPU.IsSet {
-		allocMem = job.MemPerCPU.Number*job.CPUs.Number
+		allocMem = float64(job.MemPerCPU.Number*job.CPUs.Number)
 	}
 	
 	return allocMem
@@ -183,7 +183,7 @@ func parseUserJobMetrics(jobMetrics []JobMetric) map[string]*UserJobMetric {
 		metric.stateJobCount[jobMetric.JobState]++
 		metric.totalJobCount++
 		metric.allocMemory += totalAllocMem(&jobMetric)
-		metric.allocCpu += jobMetric.CPUs.Number
+		metric.allocCpu += float64(jobMetric.CPUs.Number)
 		userMetricMap[jobMetric.UserName] = metric
 	}
 	return userMetricMap
@@ -205,7 +205,7 @@ func parseAccountMetrics(jobs []JobMetric) map[string]*AccountMetric {
 			}
 			accountMap[job.Account] = metric
 		}
-		metric.allocCpu += job.CPUs.Number
+		metric.allocCpu += float64(job.CPUs.Number)
 		metric.allocMem += totalAllocMem(&job)
 		metric.stateJobCount[job.JobState]++
 	}

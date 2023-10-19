@@ -152,7 +152,7 @@ func (c *TraceCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 		jobid := fmt.Sprint(p.JobId)
 		ch <- prometheus.MustNewConstMetric(c.jobAllocMem, prometheus.GaugeValue, totalAllocMem(&j), jobid)
-		ch <- prometheus.MustNewConstMetric(c.jobAllocCpus, prometheus.GaugeValue, j.CPUs.Number, jobid)
+		ch <- prometheus.MustNewConstMetric(c.jobAllocCpus, prometheus.GaugeValue, float64(j.CPUs.Number), jobid)
 		ch <- prometheus.MustNewConstMetric(c.pid, prometheus.GaugeValue, float64(p.Pid), jobid, p.Hostname)
 		ch <- prometheus.MustNewConstMetric(c.cpuUsage, prometheus.GaugeValue, p.Cpus, jobid, p.Username)
 		ch <- prometheus.MustNewConstMetric(c.memUsage, prometheus.GaugeValue, p.Mem, jobid, p.Username)
