@@ -14,20 +14,56 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type JobResource struct {
-	AllocCpus  float64 `json:"allocated_cpus"`
-	AllocNodes map[string]struct {
-		Mem float64 `json:"memory"`
-	} `json:"allocated_nodes"`
+// type JobResource struct {
+// 	AllocCpus  float64 `json:"allocated_cpus"`
+// 	AllocNodes map[string]struct {
+// 		Mem float64 `json:"memory"`
+// 	} `json:"allocated_nodes"`
+// }
+
+type TRES struct {
+	IsSet bool `json:"set"`
+	IsInf bool `json:"infinite"`
+	Number int64 `json:"number"`
 }
+
 type JobMetric struct {
-	Account      string      `json:"account"`
-	JobId        float64     `json:"job_id"`
-	EndTime      float64     `json:"end_time"`
-	JobState     string      `json:"job_state"`
-	Partition    string      `json:"partition"`
-	UserName     string      `json:"user_name"`
-	JobResources JobResource `json:"job_resources"`
+	Account       string      `json:"account"`
+	JobId         float64     `json:"job_id"`
+	SubmitTime    float64     `json:"submit_time"`
+	EndTime       float64     `json:"end_time"`
+	JobState      string      `json:"job_state"`
+	JobName       string      `json:"name"`
+	Partition     string      `json:"partition"`
+	UserName      string      `json:"user_name"`
+	BatchHost     string      `json:"batch_host"`
+	Nodes         string      `json:"nodes"`
+	Command       string      `json:"command"`
+	Cluster       string      `json:"cluster"`
+	BillableTRES  TRES        `json:"billable_tres"`
+	CPUs          TRES        `json:"cpus"`
+	CPUsPerTask   TRES        `json:"cpus_per_task"`
+	NodeCount     TRES        `json:"node_count"`
+	Tasks         TRES        `json:"tasks"`
+	ArrayJobId    TRES        `json:"array_job_id"`
+	ArrayTaskId   TRES        `json:"array_task_id"`
+	ArrayMaxTasks TRES        `json:"array_max_tasks"`
+	MemPerCPU     TRES        `json:"memory_per_cpu"`
+	MemPerNode    TRES        `json:"memory_per_node"`
+	Priority      TRES        `json:"priority"`
+	StateReason   string      `json:"state_reason"`
+	StdErr        string      `json:"standard_error"`
+	StdOut        string      `json:"standard_output"`
+	RestartCount  int32       `json:"restart_cnt"`
+	ExitCode      int32       `json:"exit_code"`
+	TimeLimit     TRES        `json:"time_limit"`
+	Features      string      `json:"features"`
+	TRESAlloc     string      `json:"tres_alloc_str"`
+	TRESReq       string      `json:"tres_req_str"`
+	TRESPerNode   string      `json:"tres_per_node"`
+	cwd           string      `json:"current_working_directory"`
+
+//	JobResources JobResource `json:"job_resources"`
 }
 
 type squeueResponse struct {
@@ -45,11 +81,18 @@ type squeueResponse struct {
 	Jobs   []JobMetric `json:"jobs"`
 }
 
-func totalAllocMem(resource *JobResource) float64 {
+
+func totalAllocMem(job *JobMetric) float64 {
 	var allocMem float64
-	for _, node := range resource.AllocNodes {
-		allocMem += node.Mem
+
+	if job.MemPerNode.set {
+		allocMem = job.MemPerNode.number*job.NodeCount.number
 	}
+
+	if job.MemPerCPU.set {
+		allocMem = job.MemPerCPU.number*job.CPUs.number
+	}
+	
 	return allocMem
 }
 
@@ -109,12 +152,12 @@ func parseCliFallback(squeue []byte) ([]JobMetric, error) {
 			Partition: metric.Partition,
 			UserName:  metric.UserName,
 			EndTime:   float64(metric.EndTime.Unix()),
-			JobResources: JobResource{
-				AllocCpus: float64(metric.Cpu),
-				AllocNodes: map[string]struct {
-					Mem float64 `json:"memory"`
-				}{"0": {Mem: mem}},
-			},
+			// JobResources: JobResource{
+			// 	AllocCpus: float64(metric.Cpu),
+			// 	AllocNodes: map[string]struct {
+			// 		Mem float64 `json:"memory"`
+			// 	}{"0": {Mem: mem}},
+			// },
 		}
 		jobMetrics = append(jobMetrics, openapiJobMetric)
 	}
@@ -139,8 +182,8 @@ func parseUserJobMetrics(jobMetrics []JobMetric) map[string]*UserJobMetric {
 		}
 		metric.stateJobCount[jobMetric.JobState]++
 		metric.totalJobCount++
-		metric.allocMemory += totalAllocMem(&jobMetric.JobResources)
-		metric.allocCpu += jobMetric.JobResources.AllocCpus
+		metric.allocMemory += totalAllocMem(&jobMetric)
+		metric.allocCpu += jobMetric.CPUs.number
 		userMetricMap[jobMetric.UserName] = metric
 	}
 	return userMetricMap
@@ -162,8 +205,8 @@ func parseAccountMetrics(jobs []JobMetric) map[string]*AccountMetric {
 			}
 			accountMap[job.Account] = metric
 		}
-		metric.allocCpu += job.JobResources.AllocCpus
-		metric.allocMem += totalAllocMem(&job.JobResources)
+		metric.allocCpu += job.CPUs.number
+		metric.allocMem += totalAllocMem(&job)
 		metric.stateJobCount[job.JobState]++
 	}
 	return accountMap
