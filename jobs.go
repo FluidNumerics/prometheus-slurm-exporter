@@ -85,12 +85,12 @@ type squeueResponse struct {
 func totalAllocMem(job *JobMetric) float64 {
 	var allocMem float64
 
-	if job.MemPerNode.set {
-		allocMem = job.MemPerNode.number*job.NodeCount.number
+	if job.MemPerNode.IsSet {
+		allocMem = job.MemPerNode.Number*job.NodeCount.Number
 	}
 
-	if job.MemPerCPU.set {
-		allocMem = job.MemPerCPU.number*job.CPUs.number
+	if job.MemPerCPU.IsSet {
+		allocMem = job.MemPerCPU.Number*job.CPUs.Number
 	}
 	
 	return allocMem
@@ -183,7 +183,7 @@ func parseUserJobMetrics(jobMetrics []JobMetric) map[string]*UserJobMetric {
 		metric.stateJobCount[jobMetric.JobState]++
 		metric.totalJobCount++
 		metric.allocMemory += totalAllocMem(&jobMetric)
-		metric.allocCpu += jobMetric.CPUs.number
+		metric.allocCpu += jobMetric.CPUs.Number
 		userMetricMap[jobMetric.UserName] = metric
 	}
 	return userMetricMap
@@ -205,7 +205,7 @@ func parseAccountMetrics(jobs []JobMetric) map[string]*AccountMetric {
 			}
 			accountMap[job.Account] = metric
 		}
-		metric.allocCpu += job.CPUs.number
+		metric.allocCpu += job.CPUs.Number
 		metric.allocMem += totalAllocMem(&job)
 		metric.stateJobCount[job.JobState]++
 	}
