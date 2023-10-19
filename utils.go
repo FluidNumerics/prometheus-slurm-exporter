@@ -52,6 +52,7 @@ func (atc *AtomicThrottledCache) fetchOrThrottle(fetchFunc func() ([]byte, error
 	atc.duration = time.Since(t)
 	atc.cache = slurmData
 	atc.t = time.Now()
+	slog.Debug(fmt.Sprintf("ATC fetchOrThrottle end"))
 	return slurmData, nil
 }
 
