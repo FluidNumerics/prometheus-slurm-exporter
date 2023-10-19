@@ -92,7 +92,8 @@ func (cf *CliFetcher) captureCli() ([]byte, error) {
 		return nil, errors.New("need at least 1 args")
 	}
 	//defer duration(track(cf.args))
-	cmd := exec.Command(cf.args[0], cf.args[1:]...)
+	//cmd := exec.Command(cf.args[0], cf.args[1:]...)
+	cmd := exec.Command("squeue", "--json")
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
