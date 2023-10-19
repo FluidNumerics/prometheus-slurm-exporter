@@ -38,6 +38,7 @@ type AtomicThrottledCache struct {
 // atomic fetch of either the cache or the collector
 // reset & hydrate as necessary
 func (atc *AtomicThrottledCache) fetchOrThrottle(fetchFunc func() ([]byte, error)) ([]byte, error) {
+	slog.Debug(fmt.Sprintf("ATC fetchOrThrottle start"))
 	atc.Lock()
 	defer atc.Unlock()
 	if len(atc.cache) > 0 && time.Since(atc.t).Seconds() < atc.limit {
@@ -108,6 +109,7 @@ func (cf *CliFetcher) captureCli() ([]byte, error) {
 	if errb.Len() > 0 {
 		return nil, fmt.Errorf("cmd failed with %s", errb.String())
 	}
+	slog.Debug(fmt.Sprintf("CLIFetcher capture CLI finished"))
 	return outb.Bytes(), nil
 }
 
