@@ -47,6 +47,7 @@ func (atc *AtomicThrottledCache) fetchOrThrottle(fetchFunc func() ([]byte, error
 	t := time.Now()
 	slurmData, err := fetchFunc()
 	if err != nil {
+		slog.Debug(fmt.Sprintf("ATC fetchOrThrottle errored out!"))
 		return nil, err
 	}
 	atc.duration = time.Since(t)
@@ -96,6 +97,7 @@ func (cf *CliFetcher) captureCli() ([]byte, error) {
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
 	if err := cmd.Start(); err != nil {
+		slog.Debug(fmt.Sprintf("CLIFetcher capture CLI errored on cmd.start"))
 		return nil, err
 	}
 	timer := time.AfterFunc(cf.timeout, func() {
@@ -105,6 +107,7 @@ func (cf *CliFetcher) captureCli() ([]byte, error) {
 	})
 	defer timer.Stop()
 	if err := cmd.Wait(); err != nil {
+		slog.Debug(fmt.Sprintf("CLIFetcher capture CLI errored on cmd.wait"))
 		return nil, err
 	}
 	if errb.Len() > 0 {
