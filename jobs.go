@@ -141,7 +141,7 @@ func parseCliFallback(squeue []byte) ([]JobMetric, error) {
 			slog.Error(fmt.Sprintf("squeue fallback parse error: failed on line %d `%s`", i, line))
 			return nil, err
 		}
-		mem, err := MemToFloat(metric.Mem)
+		//mem, err := MemToFloat(metric.Mem)
 		if err != nil {
 			return nil, err
 		}
