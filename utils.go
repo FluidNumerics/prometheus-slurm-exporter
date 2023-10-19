@@ -91,7 +91,7 @@ func (cf *CliFetcher) captureCli() ([]byte, error) {
 	if len(cf.args) == 0 {
 		return nil, errors.New("need at least 1 args")
 	}
-	defer duration(track(cf.args))
+	//defer duration(track(cf.args))
 	cmd := exec.Command(cf.args[0], cf.args[1:]...)
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
@@ -100,12 +100,12 @@ func (cf *CliFetcher) captureCli() ([]byte, error) {
 		slog.Debug(fmt.Sprintf("CLIFetcher capture CLI errored on cmd.start"))
 		return nil, err
 	}
-	timer := time.AfterFunc(cf.timeout, func() {
-		if err := cmd.Process.Kill(); err != nil {
-			slog.Error(fmt.Sprintf("failed to cancel cmd: %v", cf.args))
-		}
-	})
-	defer timer.Stop()
+	// timer := time.AfterFunc(cf.timeout, func() {
+	// 	if err := cmd.Process.Kill(); err != nil {
+	// 		slog.Error(fmt.Sprintf("failed to cancel cmd: %v", cf.args))
+	// 	}
+	// })
+	//defer timer.Stop()
 	if err := cmd.Wait(); err != nil {
 		slog.Debug(fmt.Sprintf("CLIFetcher capture CLI errored on cmd.wait"))
 		return nil, err
