@@ -142,9 +142,9 @@ func parseCliFallback(squeue []byte) ([]JobMetric, error) {
 			return nil, err
 		}
 		//mem, err := MemToFloat(metric.Mem)
-		if err != nil {
-			return nil, err
-		}
+		// if err != nil {
+		// 	return nil, err
+		// }
 		openapiJobMetric := JobMetric{
 			Account:   metric.Account,
 			JobId:     metric.JobId,
